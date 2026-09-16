@@ -1,0 +1,17 @@
+{
+  "name": "streamersonglist-obs-overlay",
+  "version": "1.0.0",
+  "description": "24/7 OBS Browser Source Overlay and API for StreamerSonglist",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2"
+  },
+  "license": "MIT"
+}

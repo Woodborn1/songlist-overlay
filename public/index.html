@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StreamerSonglist OBS Widget</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: transparent;
+      font-family: 'Montserrat', sans-serif;
+      overflow: hidden;
+      display: flex;
+      align-items: flex-start;
+      justify-content: flex-start;
+      padding: 16px;
+      color: #ffffff;
+    }
+
+    .widget-container {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      width: 440px;
+      animation: fadeIn 0.6s ease-out;
+    }
+
+    /* Main Now Playing Card */
+    .card-now-playing {
+      position: relative;
+      background: rgba(18, 18, 28, 0.88);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: 18px;
+      padding: 16px 20px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.45), 0 0 20px rgba(139, 92, 246, 0.15);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      overflow: hidden;
+    }
+
+    .card-now-playing::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #a855f7, #6366f1, #06b6d4);
+    }
+
+    .header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: #a855f7;
+      background: rgba(168, 85, 247, 0.14);
+      padding: 4px 10px;
+      border-radius: 20px;
+      border: 1px solid rgba(168, 85, 247, 0.25);
+    }
+
+    .live-dot {
+      width: 7px;
+      height: 7px;
+      background: #22c55e;
+      border-radius: 50%;
+      box-shadow: 0 0 10px #22c55e;
+      animation: pulse 1.8s infinite;
+    }
+
+    .equalizer {
+      display: flex;
+      align-items: flex-end;
+      gap: 2.5px;
+      height: 14px;
+    }
+
+    .eq-bar {
+      width: 3px;
+      background: #a855f7;
+      border-radius: 2px;
+      animation: bounce 1.2s infinite ease-in-out alternate;
+    }
+
+    .eq-bar:nth-child(1) { height: 40%; animation-delay: 0.1s; }
+    .eq-bar:nth-child(2) { height: 80%; animation-delay: 0.3s; }
+    .eq-bar:nth-child(3) { height: 55%; animation-delay: 0.2s; }
+    .eq-bar:nth-child(4) { height: 95%; animation-delay: 0.4s; }
+
+    .track-title {
+      font-size: 19px;
+      font-weight: 800;
+      color: #ffffff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+      transition: opacity 0.25s ease;
+    }
+
+    .track-artist {
+      font-size: 14px;
+      font-weight: 600;
+      color: #cbd5e1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      transition: opacity 0.25s ease;
+    }
+
+    /* Next Up Card */
+    .card-next {
+      background: rgba(15, 15, 24, 0.75);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: 14px;
+      padding: 10px 16px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .next-label {
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #94a3b8;
+      background: rgba(255, 255, 255, 0.08);
+      padding: 3px 8px;
+      border-radius: 6px;
+      white-space: nowrap;
+    }
+
+    .next-content {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      overflow: hidden;
+      white-space: nowrap;
+      font-size: 13px;
+    }
+
+    .next-title {
+      font-weight: 700;
+      color: #f1f5f9;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .next-divider {
+      color: #64748b;
+      font-weight: 400;
+    }
+
+    .next-artist {
+      color: #94a3b8;
+      font-weight: 500;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .empty-text {
+      color: #64748b;
+      font-style: italic;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(0.9); opacity: 0.7; box-shadow: 0 0 4px #22c55e; }
+      50% { transform: scale(1.2); opacity: 1; box-shadow: 0 0 12px #22c55e; }
+      100% { transform: scale(0.9); opacity: 0.7; box-shadow: 0 0 4px #22c55e; }
+    }
+
+    @keyframes bounce {
+      0% { height: 20%; }
+      100% { height: 100%; }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="widget-container">
+    <!-- Now Playing Card -->
+    <div class="card-now-playing">
+      <div class="header-row">
+        <div class="badge">
+          <span class="live-dot"></span>
+          Зараз грає
+        </div>
+        <div class="equalizer" id="eq">
+          <div class="eq-bar"></div>
+          <div class="eq-bar"></div>
+          <div class="eq-bar"></div>
+          <div class="eq-bar"></div>
+        </div>
+      </div>
+      <div class="track-title" id="now-title">Очікування треку...</div>
+      <div class="track-artist" id="now-artist">StreamerSonglist</div>
+    </div>
+
+    <!-- Next In Queue Card -->
+    <div class="card-next" id="next-card">
+      <div class="next-label">Наступна</div>
+      <div class="next-content" id="next-content">
+        <span class="empty-text">Черга порожня</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const streamer = urlParams.get('streamer') || 'ssofikooooo';
+    const pollInterval = parseInt(urlParams.get('interval') || '4000', 10);
+
+    const nowTitleEl = document.getElementById('now-title');
+    const nowArtistEl = document.getElementById('now-artist');
+    const nextContentEl = document.getElementById('next-content');
+    const eqEl = document.getElementById('eq');
+
+    let lastTitle = '';
+    let lastArtist = '';
+
+    async function updateWidget() {
+      try {
+        const res = await fetch(`/api/queue?streamer=${encodeURIComponent(streamer)}`);
+        if (!res.ok) throw new Error('API error');
+        const data = await res.json();
+
+        if (data.ok) {
+          // Update Playing
+          if (data.playing && data.playing.title) {
+            if (lastTitle !== data.playing.title || lastArtist !== data.playing.artist) {
+              lastTitle = data.playing.title;
+              lastArtist = data.playing.artist;
+              
+              nowTitleEl.style.opacity = '0';
+              nowArtistEl.style.opacity = '0';
+              setTimeout(() => {
+                nowTitleEl.textContent = data.playing.title;
+                nowArtistEl.textContent = data.playing.artist || 'Невідомий виконавець';
+                nowTitleEl.style.opacity = '1';
+                nowArtistEl.style.opacity = '1';
+              }, 200);
+            }
+            eqEl.style.display = 'flex';
+          } else {
+            nowTitleEl.textContent = 'Очікування треку...';
+            nowArtistEl.textContent = 'Стрімер ще не запустив трек';
+            eqEl.style.display = 'none';
+          }
+
+          // Update Next
+          if (data.next && data.next.title) {
+            nextContentEl.innerHTML = `
+              <span class="next-title">${escapeHtml(data.next.title)}</span>
+              <span class="next-divider">—</span>
+              <span class="next-artist">${escapeHtml(data.next.artist || '')}</span>
+            `;
+          } else {
+            nextContentEl.innerHTML = `<span class="empty-text">Черга порожня</span>`;
+          }
+        }
+      } catch (err) {
+        console.warn('Update failed:', err);
+      }
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    // Initial load & timer
+    updateWidget();
+    setInterval(updateWidget, pollInterval);
+  </script>
+</body>
+</html>
