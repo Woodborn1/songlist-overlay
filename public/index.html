@@ -33,14 +33,14 @@
       animation: fadeIn 0.5s ease-out;
     }
 
-    /* Main Now Playing Card - Solid Opaque in OBS */
+    /* Main Now Playing Card - 80% Opacity */
     .card-now-playing {
       position: relative;
-      background: #141524;
+      background: rgba(20, 21, 36, 0.80);
       border-radius: 16px;
       padding: 16px 20px;
-      border: 1.5px solid #2a2b42;
-      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.75), 0 0 20px rgba(168, 85, 247, 0.2);
+      border: 1.5px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.65), 0 0 20px rgba(168, 85, 247, 0.15);
       display: flex;
       flex-direction: column;
       gap: 6px;
@@ -72,10 +72,10 @@
       text-transform: uppercase;
       letter-spacing: 1.5px;
       color: #c084fc;
-      background: #241a3a;
+      background: rgba(168, 85, 247, 0.2);
       padding: 4px 11px;
       border-radius: 20px;
-      border: 1px solid #7e22ce;
+      border: 1px solid rgba(168, 85, 247, 0.4);
     }
 
     .live-dot {
@@ -127,13 +127,13 @@
       transition: opacity 0.25s ease;
     }
 
-    /* Next Up Card - Solid Opaque in OBS */
+    /* Next Up Card - 80% Opacity */
     .card-next {
-      background: #0d0e19;
+      background: rgba(13, 14, 25, 0.80);
       border-radius: 12px;
       padding: 11px 16px;
-      border: 1.5px solid #202235;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.65);
+      border: 1.5px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.55);
       display: flex;
       align-items: center;
       gap: 12px;
@@ -242,6 +242,15 @@
     const nowArtistEl = document.getElementById('now-artist');
     const nextContentEl = document.getElementById('next-content');
     const eqEl = document.getElementById('eq');
+
+    const customOpacity = urlParams.get('opacity');
+    if (customOpacity) {
+      const op = parseFloat(customOpacity);
+      if (!isNaN(op)) {
+        document.getElementById('card-now').style.background = `rgba(20, 21, 36, ${op})`;
+        document.getElementById('card-next').style.background = `rgba(13, 14, 25, ${op})`;
+      }
+    }
 
     let lastTitle = '';
     let lastArtist = '';
